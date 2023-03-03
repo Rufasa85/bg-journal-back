@@ -70,6 +70,27 @@ router.post("/login", (req, res) => {
       res.json({ msg: "oh no", err });
     });
 });
+
+router.get("/isValidToken", (req, res) => {
+  const token = req.headers?.authorization?.split(" ")[1];
+  if (!token) {
+    return res
+      .status(403)
+      .json({ isValid: false, msg: "you must be logged in to create a play!" });
+  }
+  try {
+    const tokenData = jwt.verify(token,process.env.JWT_SECRET);
+    res.json({
+      isValid: true,
+      user: tokenData,
+    });
+  } catch (err) {
+    res.status(403).json({
+      isValid: false,
+      msg: "invalid token",
+    });
+  }
+});
 // get one with plays
 router.get("/:id", (req, res) => {
   User.findByPk(req.params.id, {
